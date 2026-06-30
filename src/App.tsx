@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { fetchSeafoodData, filterCategory, searchItems, sortSeafood, SeafoodItem, setDevelopmentStyles, setWPStyles, filterStore } from './utils'
+import { fetchCigarData, filterCategory, searchItems, sortSeafood, CigarItem, setDevelopmentStyles, setWPStyles, filterStore } from './utils'
 import { SeafoodCard } from './components/SeafoodCard/SeafoodCard'
 import { FilterPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
@@ -14,8 +14,8 @@ const notFoundIcons = [
 
 function App() {
   const [appLoading, setAppLoading] = useState<boolean>(true)
-  const [seafoodItems, setSeafoodItems] = useState<SeafoodItem[]>([])
-  const [filteredSeafoodItems, setFilteredSeafoodItems] = useState<SeafoodItem[]>([])
+  const [seafoodItems, setSeafoodItems] = useState<CigarItem[]>([])
+  const [filteredSeafoodItems, setFilteredSeafoodItems] = useState<CigarItem[]>([])
   const [categories, setCategories] = useState<string[]>([])
   //const [types, setTypes] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -48,7 +48,7 @@ function App() {
     const fetchData = async () => {
       try {
         //console.log("Fetching data");
-        const data = await fetchSeafoodData();
+        const data = await fetchCigarData();
         setSeafoodItems(data);
         setFilteredSeafoodItems(filterStore(sortSeafood((data), 'category', selectedStore, userIP), selectedStore))
       } catch {
@@ -106,7 +106,7 @@ function App() {
   useEffect(() => { // assemble list of categories and set app loading status
     // map to get an array of categories 
     const categories = seafoodItems
-      .map(item => item.category.trim())
+      .map(item => item.brand.trim())
       .filter(category => category); // Filter out empty or whitespace-only item
     const uniqueCategories = Array.from(new Set(categories));
     setCategories(uniqueCategories)
@@ -143,7 +143,7 @@ function App() {
   }, [window.innerWidth, window.innerHeight, seafoodItems]);
 
 
-  const orderedSeafood = (): SeafoodItem[] => {
+  const orderedSeafood = (): CigarItem[] => {
     // wine type > country > search query > sort
     return sortSeafood(searchItems(filterCategory(filterStore(seafoodItems, selectedStore), selectedCategories), searchQuery), sortQuery, selectedStore, userIP)
   }

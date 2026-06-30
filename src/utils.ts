@@ -1,38 +1,23 @@
-export type SeafoodItem = {
-    category: string,
+export type CigarItem = {
+    brand: string,
     description: string,
-    fairfield: string,
-    fairfieldStatus: string,
-    eastgate: string,
-    eastgateStatus: string,
+    size: string,
+    strength: string,
+    price: number,
+    restrictions: string,
 }
 
-export const getPrice = (item: SeafoodItem, userIP: string, selectedStores: string[]): string => {
-    if (selectedStores.includes('fairfield')) {
-        return item.fairfield
-    }
 
-    if (selectedStores.includes('eastgate')) {
-        return item.eastgate
-    }
-
-    if (userIP == "74.219.230.226") {
-        return item.fairfield
-    }
-
-    if (userIP == "70.62.236.130") {
-        return item.eastgate
-    }
-
-    return item.fairfield
+export const getPrice = (item: CigarItem, userIP: string, selectedStores: string[]): string => {
+    return `${item.price}`
 }
 
 const endpoints = {
-    proxy: 'api/seafood.json',
-    online: 'https://mobile-api.junglejims.com/seafood.json',
+    proxy: 'api/cigar-deals.json',
+    online: 'https://mobile-api-dev.junglejims.com/cigar-deals.json',
 }
 
-export const fetchSeafoodData = async (): Promise<SeafoodItem[]> => {
+export const fetchCigarData = async (): Promise<CigarItem[]> => {
     try {
         const response = await fetch(import.meta.env.PROD ? endpoints.online : endpoints.proxy);
 
@@ -40,33 +25,34 @@ export const fetchSeafoodData = async (): Promise<SeafoodItem[]> => {
             throw new Error('Network response was not ok');
         }
 
-        const seafoodData = await response.json();
-        console.log(seafoodData);
-        return seafoodData.seafood as SeafoodItem[]
+        const cigarData = await response.json();
+        console.log(cigarData);
+        return cigarData.cigarDeals as CigarItem[]
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
         throw error; // Ensure the error is propagated if necessary
     }
 }
 
-export const searchItems = (seafoodItems: SeafoodItem[], searchQuery: string): SeafoodItem[] => {
+export const searchItems = (items: CigarItem[], searchQuery: string): CigarItem[] => {
     // filter bottle list based on query match, runs more frequently
     const cleanQuery = `${searchQuery}`.toLowerCase()
     if (cleanQuery) {
-        return seafoodItems.filter((item) => {
+        return items.filter((item) => {
             return (
-                `${item.category}`?.toLowerCase().includes(cleanQuery) ||
+                `${item.brand}`?.toLowerCase().includes(cleanQuery) ||
                 ` ${item.description}`?.toLowerCase().includes(cleanQuery) ||
-                `${item.eastgate}`?.toLowerCase().includes(cleanQuery) ||
-                `${item.fairfield}`?.toLowerCase().includes(cleanQuery)
+                ` ${item.size}`?.toLowerCase().includes(cleanQuery) ||
+                ` ${item.strength}`?.toLowerCase().includes(cleanQuery) ||
+                `${item.restrictions}`?.toLowerCase().includes(cleanQuery)
             );
         })
     } else {
-        return seafoodItems
+        return items
     }
 }
 
-export const filterStore = (seafoodItems: SeafoodItem[], selectedStores: string[]): SeafoodItem[] => {
+export const filterStore = (items: CigarItem[], selectedStores: string[]): CigarItem[] => {
     // filter seafood list based on query match, runs more frequently
     selectedStores;
     /* if (selectedStores.length > 0) {
@@ -83,45 +69,28 @@ export const filterStore = (seafoodItems: SeafoodItem[], selectedStores: string[
         });
     } */
 
-    return seafoodItems
+    return items
 }
 
-export const filterCategory = (seafoodItems: SeafoodItem[], selectedCategories: string[]): SeafoodItem[] => {
+export const filterCategory = (items: CigarItem[], selectedCategories: string[]): CigarItem[] => {
     // a more lightweight version that runs on an array of queries
     //console.log(additionalQueries);
 
     if (selectedCategories.length > 0) {
-        return seafoodItems.filter((item) => {
+        return items.filter((item) => {
             return selectedCategories.some((query) => {
                 return (
-                    item.category.toLowerCase().includes(query.toLowerCase())
+                    item.brand.toLowerCase().includes(query.toLowerCase())
                 );
             });
         });
     } else {
-        return seafoodItems
+        return items
     }
 }
 
-export const filterTypes = (seafoodItems: SeafoodItem[], selectedTypes: string[]): SeafoodItem[] => {
-    // a more lightweight version that runs on an array of queries
-    //console.log(additionalQueries);
-
-    if (selectedTypes.length > 0) {
-        return seafoodItems.filter((item) => {
-            return selectedTypes.some((query) => {
-                return (
-                    item.description?.replace(/[^a-zA-Z0-9\s]/g, '').toLowerCase().includes(query.toLowerCase())
-                );
-            });
-        });
-    } else {
-        return seafoodItems
-    }
-}
-
-
-export const sortSeafood = (filteredSeafoodItems: SeafoodItem[], sortQuery: string, selectedStores: string[], IP: string): SeafoodItem[] => {
+// TODO: create sort generic behavior
+export const sortSeafood = (filteredSeafoodItems: CigarItem[], sortQuery: string, selectedStores: string[], IP: string): CigarItem[] => {
 
     // Sort the filtered array
     const cleanPrice = (price: string): number => {
@@ -130,25 +99,25 @@ export const sortSeafood = (filteredSeafoodItems: SeafoodItem[], sortQuery: stri
         return cleanedPrice === "" ? 0.0 : parseFloat(cleanedPrice); // Convert cleaned string to a float
     };
 
-    const getHardcodedCategory = (item: SeafoodItem): string => {
-        return item.category.includes("Out of Stock / Season")
+    const getHardcodedCategory = (item: CigarItem): string => {
+        return item.brand.includes("Out of Stock / Season")
             ? 'zzzzzzzzzzz'
-            : item.category.includes("Weekly Sale Items")
+            : item.brand.includes("Weekly Sale Items")
                 ? 'aaaaaaaaaaa'
-                : item.category.includes("Whole Fish")
+                : item.brand.includes("Whole Fish")
                     ? 'aaaaaaaaaab'
-                    : item.category
+                    : item.brand
     }
 
     if (sortQuery === '') {
         return filteredSeafoodItems
     } else {
-        let sortedSeafoodItems: SeafoodItem[] = filteredSeafoodItems
+        let sortedSeafoodItems: CigarItem[] = filteredSeafoodItems
         switch (sortQuery) {
             case "category":
                 {
                     filteredSeafoodItems.sort((a, b) => {
-                        const aCat = getHardcodedCategory(a); // Convert price to number
+                        const aCat = getHardcodedCategory(a);
                         const bCat = getHardcodedCategory(b)
 
                         return aCat?.localeCompare(bCat);
@@ -190,98 +159,6 @@ export const sortSeafood = (filteredSeafoodItems: SeafoodItem[], sortQuery: stri
         return sortedSeafoodItems
     }
 }
-
-export const assembleSeafoodTypes = (seafoodItems: SeafoodItem[], types: string[]): string[] => {
-
-    // Create a Set to store wine types that appear in the descriptions or countries
-    const matchingTypes = new Set<string>();
-
-    // Loop through each wine bottle
-    seafoodItems.forEach((item) => {
-        const description = item.description?.toLowerCase();
-        const category = item.category?.toLowerCase();
-
-        // Check each wine type if it's in the description or country
-        types.forEach((type) => {
-            const typeLower = type?.toLowerCase();
-
-            // Add to set if found in either description or country
-            if (description?.includes(typeLower) || category?.includes(typeLower)) {
-                matchingTypes.add(type);
-            }
-        });
-    });
-    const sortedTypes = Array.from(matchingTypes).sort((a, b) => {
-        return a.localeCompare(b);
-    })
-
-    // Return only wine types that matched
-    return sortedTypes;
-};
-
-export const seafoodTypes = [
-    // Finfish
-    "Salmon",
-    "Tuna",
-    "Cod",
-    "Trout",
-    "Halibut",
-    "Snapper",
-    "Mackerel",
-    "Sardine",
-    "Haddock",
-    "Pollock",
-    "Swordfish",
-    "Tilapia",
-    "Bass",
-    "Flounder",
-    "Sole",
-    "Grouper",
-    "Barramundi",
-    "Anchovy",
-    "Catfish",
-    "Basa",
-    "Pangasius",
-    "Smelt",
-    "Anglerfish",
-    "Bream",
-    "Perch",
-    "Pike",
-
-    // Shellfish
-    "Shrimp",
-    "Prawns",
-    "Lobster",
-    "Crab",
-    "Crawfish",
-    "Oysters",
-    "Mussels",
-    "Clams",
-    "Scallops",
-    "Abalone",
-    "Cockle",
-    "Periwinkle",
-
-    // Cephalopods
-    "Octopus",
-    "Squid",
-    "Cuttlefish",
-
-    // Roe
-    "Caviar",
-    "Salmon Roe (Ikura)",
-    "Flying Fish Roe (Tobiko)",
-    "Capelin Roe (Masago)",
-    "Lumpfish Roe",
-
-    // Echinoderms and other invertebrates
-    "Sea Urchin (Uni)",
-    "Sea Cucumber",
-
-    // Additional types
-    "Jellyfish"
-];
-
 
 export const setDevelopmentStyles = () => {
     console.log('setting dev styles');

@@ -1,8 +1,8 @@
-import { getPrice, SeafoodItem } from "../../utils"
+import { getPrice, CigarItem } from "../../utils"
 import './SeafoodCard.css'
 
 interface cardProps {
-    item: SeafoodItem
+    item: CigarItem
     selectedStores: string[]
     IP: string
 }
@@ -27,7 +27,7 @@ export function SeafoodCard({ item, selectedStores, IP }: cardProps) {
                         fontSize: '18px',
                         fontWeight: 800,
                         margin: '0px',
-                    }}>{item.category}</p>
+                    }}>{item.brand}</p>
 
                     <p style={{
                         fontSize: '16px',
