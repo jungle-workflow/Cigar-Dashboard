@@ -20,6 +20,11 @@ export const RESTRICTIONS = {
     egOnly: 'Eastgate Only'
 }
 
+export const STORES = {
+    FF: "fairfield",
+    EG: "eastgate"
+}
+
 
 export const getPrice = (item: CigarItem, userIP: string, selectedStores: string[]): string => { // this method exists to display a different price if they vary between stores
     return `${item.price}`
@@ -65,9 +70,37 @@ export const searchItems = (items: CigarItem[], searchQuery: string, filters: st
 }
 
 export const filterStore = (items: CigarItem[], selectedStores: string[]): CigarItem[] => {
-    // filter seafood list based on query match
+    console.log("filtering store", selectedStores)
+    // combos fairfield = restrictions.none and restrictions.ffonly
+    // combos eastgate = restrictions.none and restrictions.egonly
+    // combos none = restrictions.none and restrictions.ffonly and restrictions.egonly
+    // combos both = restrictions.none and restrictions.ffonly and restrictions.egonly
 
-    return items
+    if ((selectedStores.includes(STORES.FF) && selectedStores.includes(STORES.EG)) || (selectedStores.length == 0 || selectedStores.includes(""))) {
+        console.log("1")
+        return items.filter((item) =>
+            item.restrictions == undefined ||
+            item.restrictions == RESTRICTIONS.none ||
+            item.restrictions == RESTRICTIONS.ffOnly ||
+            item.restrictions == RESTRICTIONS.egOnly
+        )
+    } else if (selectedStores.includes(STORES.FF)) {
+        console.log("2")
+        return items.filter((item) =>
+            item.restrictions == undefined ||
+            item.restrictions == RESTRICTIONS.none ||
+            item.restrictions == RESTRICTIONS.ffOnly
+        )
+    } else if (selectedStores.includes(STORES.EG)) {
+        console.log("3")
+        return items.filter((item) =>
+            item.restrictions == undefined ||
+            item.restrictions == RESTRICTIONS.none ||
+            item.restrictions == RESTRICTIONS.egOnly
+        )
+    } else {
+        return items
+    }
 }
 
 

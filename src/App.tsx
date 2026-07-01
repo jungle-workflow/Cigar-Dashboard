@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { fetchCigarData, filterCategory, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys } from './utils'
+import { fetchCigarData, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys } from './utils'
 import { CigarCard } from './components/CigarCard/CigarCard'
 import { FilterPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
+import { STORES } from './utils'
 
 const notFoundIcons = [
   `( ╥﹏╥) ノシ`,
@@ -20,7 +21,7 @@ function App() {
   //const [types, setTypes] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [sortQuery, setSortQuery] = useState<string>('')
-  const [selectedStore, setSelectedStores] = useState<string[]>([''])
+  const [selectedStore, setSelectedStores] = useState<string[]>([])
   const [userIP, setUserIP] = useState<string>('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   //const [selectedTypes, setSelectedTypes] = useState<string[]>([])
@@ -121,10 +122,13 @@ function App() {
 
 
   useEffect(() => {  // when the user searches for a keyword, filter it here
-    const filteredList = orderedSeafood()
+    console.log("[searchQuery, selectedStore, selectedCategories]", selectedStore)
+    const filteredList = orderedItems()
+    console.log(filteredList);
+    
     setFilteredItems(filteredList)
 
-  }, [searchQuery, selectedStore])
+  }, [searchQuery, selectedStore, selectedCategories, sortQuery])
 
 
   useEffect(() => { // window size listener
@@ -143,7 +147,7 @@ function App() {
   }, [window.innerWidth, window.innerHeight, items]);
 
 
-  const orderedSeafood = (): CigarItem[] => {
+  const orderedItems = (): CigarItem[] => {
     // wine type > country > search query > sort
     return sortItems(
       searchItems(
@@ -151,31 +155,25 @@ function App() {
         searchQuery, [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
       ), sortQuery, selectedStore, userIP
     )
-    return sortItems(searchItems(filterCategory(filterStore(items, selectedStore), selectedCategories), searchQuery, [itemPropKeys.brand]), sortQuery, selectedStore, userIP)
   }
 
   const onSort = () => {
     const currentVal = sortRef.current?.value ?? ''
     setSortQuery(currentVal)
-
-    const sortedList = sortItems(filteredItems, currentVal, selectedStore, userIP)
-    setFilteredItems(sortedList)
   }
 
   const handleFilterCategory = (query: string) => {
-    const newArray = selectedCategories;
-    if (newArray.includes(query)) {
-      newArray.splice(newArray.indexOf(query), 1)
+    const newCats = selectedCategories;
+    if (newCats.includes(query)) {
+      newCats.splice(newCats.indexOf(query), 1)
     } else {
-      newArray.push(query)
+      newCats.push(query)
     }
 
-    setSelectedCategories(newArray)
-    const filteredList = orderedSeafood()
-    setFilteredItems(filteredList)
+    setSelectedCategories(newCats)
   }
 
-  const handleFilterStore = (query: string) => {
+  const handleFilterStore = (query: string) => { // handle store preference
     // toggle items when clicked
     let newArray = selectedStore;
     if (newArray.includes(query)) {
@@ -185,9 +183,6 @@ function App() {
     }
 
     setSelectedStores([...newArray])
-    const filteredList = orderedSeafood()
-
-    setFilteredItems(filteredList)
   }
 
 
@@ -216,17 +211,17 @@ function App() {
 
             {/* Select Store */}
             <div id="chooseStoreContainer">
-              <button id="storeFairfield" className={`chooseStore noAppearance ${selectedStore.includes('fairfield') ? 'active' : ''}`}
+              <button id="storeFairfield" className={`chooseStore noAppearance ${selectedStore.includes(STORES.FF) ? 'active' : ''}`}
                 onClick={() => {
-                  handleFilterStore('fairfield')
+                  handleFilterStore(STORES.FF)
                 }}>
-                FAIRFIELD
+                {STORES.FF.toUpperCase()}
               </button>
-              <button id="storeEastgate" className={`chooseStore noAppearance ${selectedStore.includes('eastgate') ? 'active' : ''}`}
+              <button id="storeEastgate" className={`chooseStore noAppearance ${selectedStore.includes(STORES.EG) ? 'active' : ''}`}
                 onClick={() => {
-                  handleFilterStore('eastgate')
+                  handleFilterStore(STORES.EG)
                 }}>
-                EASTGATE
+                {STORES.EG.toUpperCase()}
               </button>
             </div>
             {/* <p style={{textAlign: "left", padding: "2px 5px", color: "#e9e5d4"}}>All items are subject to availability</p> */}
