@@ -33,7 +33,6 @@
   height: min-content;
   max-height: calc(100vh - 80px);
   top: 60px;
-  /* For WebKit browsers (Chrome, Safari) */
 }
 .filterWrapper .filterPanel,
 #filterWrapper .filterPanel {
@@ -72,6 +71,10 @@
   margin: 0;
   text-wrap: nowrap;
   text-align: left;
+}
+.filterWrapper,
+#filterWrapper {
+  /* For WebKit browsers (Chrome, Safari) */
 }
 .filterWrapper ::-webkit-scrollbar,
 #filterWrapper ::-webkit-scrollbar {

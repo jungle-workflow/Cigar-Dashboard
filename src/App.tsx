@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { fetchCigarData, filterCategory, searchItems, sortSeafood, CigarItem, setDevelopmentStyles, setWPStyles, filterStore } from './utils'
-import { SeafoodCard } from './components/SeafoodCard/SeafoodCard'
+import { fetchCigarData, filterCategory, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys } from './utils'
+import { CigarCard } from './components/CigarCard/CigarCard'
 import { FilterPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
 
@@ -14,13 +14,13 @@ const notFoundIcons = [
 
 function App() {
   const [appLoading, setAppLoading] = useState<boolean>(true)
-  const [seafoodItems, setSeafoodItems] = useState<CigarItem[]>([])
-  const [filteredSeafoodItems, setFilteredSeafoodItems] = useState<CigarItem[]>([])
+  const [items, setItems] = useState<CigarItem[]>([])
+  const [filteredItems, setFilteredItems] = useState<CigarItem[]>([])
   const [categories, setCategories] = useState<string[]>([])
   //const [types, setTypes] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [sortQuery, setSortQuery] = useState<string>('')
-  const [selectedStore, setSelectedStores] = useState<string[]>(['fairfield'])
+  const [selectedStore, setSelectedStores] = useState<string[]>([''])
   const [userIP, setUserIP] = useState<string>('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   //const [selectedTypes, setSelectedTypes] = useState<string[]>([])
@@ -33,7 +33,7 @@ function App() {
 
 
   useEffect(() => {  //execute the initial fetches
-    console.log("v .8");
+    console.log("v .1");
 
 
     import.meta.env.PROD ? undefined : setDevelopmentStyles()
@@ -49,8 +49,8 @@ function App() {
       try {
         //console.log("Fetching data");
         const data = await fetchCigarData();
-        setSeafoodItems(data);
-        setFilteredSeafoodItems(filterStore(sortSeafood((data), 'category', selectedStore, userIP), selectedStore))
+        setItems(data);
+        setFilteredItems(filterStore(sortItems((data), 'category', selectedStore, userIP), selectedStore))
       } catch {
         //console.log("Error fetching data in useEffect");
       }
@@ -105,24 +105,24 @@ function App() {
 
   useEffect(() => { // assemble list of categories and set app loading status
     // map to get an array of categories 
-    const categories = seafoodItems
+    const categories = items
       .map(item => item.brand.trim())
       .filter(category => category); // Filter out empty or whitespace-only item
     const uniqueCategories = Array.from(new Set(categories));
     setCategories(uniqueCategories)
 
-    if (appLoading && (seafoodItems.length > 0)) {
+    if (appLoading && (items.length > 0)) {
       setAppLoading(false)
     }
 
     /* AUTO GENERATED MATCHING SEAFOOD TYPES */
     //setTypes(assembleSeafoodTypes(seafoodItems, seafoodTypes))
-  }, [seafoodItems])
+  }, [items])
 
 
   useEffect(() => {  // when the user searches for a keyword, filter it here
     const filteredList = orderedSeafood()
-    setFilteredSeafoodItems(filteredList)
+    setFilteredItems(filteredList)
 
   }, [searchQuery, selectedStore])
 
@@ -140,20 +140,26 @@ function App() {
     return () => {
       window.removeEventListener('resize', handleResize); // Cleanup
     };
-  }, [window.innerWidth, window.innerHeight, seafoodItems]);
+  }, [window.innerWidth, window.innerHeight, items]);
 
 
   const orderedSeafood = (): CigarItem[] => {
     // wine type > country > search query > sort
-    return sortSeafood(searchItems(filterCategory(filterStore(seafoodItems, selectedStore), selectedCategories), searchQuery), sortQuery, selectedStore, userIP)
+    return sortItems(
+      searchItems(
+        filterStore(items, selectedStore),
+        searchQuery, [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
+      ), sortQuery, selectedStore, userIP
+    )
+    return sortItems(searchItems(filterCategory(filterStore(items, selectedStore), selectedCategories), searchQuery, [itemPropKeys.brand]), sortQuery, selectedStore, userIP)
   }
 
   const onSort = () => {
     const currentVal = sortRef.current?.value ?? ''
     setSortQuery(currentVal)
 
-    const sortedList = sortSeafood(filteredSeafoodItems, currentVal, selectedStore, userIP)
-    setFilteredSeafoodItems(sortedList)
+    const sortedList = sortItems(filteredItems, currentVal, selectedStore, userIP)
+    setFilteredItems(sortedList)
   }
 
   const handleFilterCategory = (query: string) => {
@@ -166,29 +172,23 @@ function App() {
 
     setSelectedCategories(newArray)
     const filteredList = orderedSeafood()
-    setFilteredSeafoodItems(filteredList)
+    setFilteredItems(filteredList)
   }
 
   const handleFilterStore = (query: string) => {
-    let newArray = [query]
-    setSelectedStores([...newArray])
-    const filteredList = orderedSeafood()
-
-    setFilteredSeafoodItems(filteredList)
-  }
-
-  /* const handleFilterDescription = (query: string) => {
-    const newArray = selectedTypes;
+    // toggle items when clicked
+    let newArray = selectedStore;
     if (newArray.includes(query)) {
-      newArray.splice(newArray.indexOf(query), 1)
+      newArray = newArray.filter((item) => item != query)
     } else {
       newArray.push(query)
     }
 
-    setSelectedTypes(newArray)
-    const filteredList = orderedBottles()
-    setFilteredSeafoodItems(filteredList)
-  } */
+    setSelectedStores([...newArray])
+    const filteredList = orderedSeafood()
+
+    setFilteredItems(filteredList)
+  }
 
 
   return (
@@ -211,7 +211,7 @@ function App() {
               color: '#e9e5d4',
               margin: 0,
             }}>
-              Popular Seafood Items
+              Cigar Deals
             </h1>
 
             {/* Select Store */}
@@ -286,14 +286,14 @@ function App() {
           color: "#e9e5d4", fontWeight: 500, fontStyle: 'italic', width: '100%', textAlign: 'right', paddingRight: '6px', margin: 0,
           marginBottom: `${!isMobile ? "30px" : 0}`
         }}>
-          {filteredSeafoodItems.length} Results
+          {filteredItems.length} Results
           {selectedCategories.length > 0 && ` >`}
           {selectedCategories.map((filter, index) => {
             return <span key={index}>{` ${filter}${index == selectedCategories.length - 1 ? `` : `,`}`}</span>
           })}
           <br />
-          All items are subject to availability. 
-          <br />Items are priced per pound or as specified. 
+          All items are subject to availability.
+          <br />Items are priced per pound or as specified.
         </p>
 
 
@@ -312,8 +312,8 @@ function App() {
                   </div> : undefined
               }
               <div id="seafoodList">
-                {filteredSeafoodItems.length > 0 ? filteredSeafoodItems.map((item, index) => {
-                  return <SeafoodCard key={index} item={item} selectedStores={selectedStore} IP={userIP}></SeafoodCard>
+                {filteredItems.length > 0 ? filteredItems.map((item, index) => {
+                  return <CigarCard key={index} item={item} selectedStores={selectedStore} IP={userIP}></CigarCard>
                 }) : <div style={{ flexDirection: 'column' }} className='wineBottle'><p>None of our seafood matches your search!</p><p>{notFoundIcons[Math.floor(Math.random() * 4)]}</p></div>}
               </div>
             </div>

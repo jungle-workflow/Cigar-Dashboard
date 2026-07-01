@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: 'https://mobile-api.junglejims.com/',
+          target: 'https://mobile-api-dev.junglejims.com/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },

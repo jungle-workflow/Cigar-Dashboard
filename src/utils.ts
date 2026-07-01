@@ -6,9 +6,22 @@ export type CigarItem = {
     price: number,
     restrictions: string,
 }
+export const itemPropKeys = {
+    brand: "brand",
+    description: "description",
+    size: "size",
+    strength: "strength",
+    price: "price",
+    restrictions: "restrictions",
+}
+export const RESTRICTIONS = {
+    none: '',
+    ffOnly: 'Fairfield Only',
+    egOnly: 'Eastgate Only'
+}
 
 
-export const getPrice = (item: CigarItem, userIP: string, selectedStores: string[]): string => {
+export const getPrice = (item: CigarItem, userIP: string, selectedStores: string[]): string => { // this method exists to display a different price if they vary between stores
     return `${item.price}`
 }
 
@@ -34,18 +47,17 @@ export const fetchCigarData = async (): Promise<CigarItem[]> => {
     }
 }
 
-export const searchItems = (items: CigarItem[], searchQuery: string): CigarItem[] => {
-    // filter bottle list based on query match, runs more frequently
+export const searchItems = (items: CigarItem[], searchQuery: string, filters: string[]): CigarItem[] => {
+    // filter bottle list based on query match
     const cleanQuery = `${searchQuery}`.toLowerCase()
     if (cleanQuery) {
         return items.filter((item) => {
-            return (
-                `${item.brand}`?.toLowerCase().includes(cleanQuery) ||
-                ` ${item.description}`?.toLowerCase().includes(cleanQuery) ||
-                ` ${item.size}`?.toLowerCase().includes(cleanQuery) ||
-                ` ${item.strength}`?.toLowerCase().includes(cleanQuery) ||
-                `${item.restrictions}`?.toLowerCase().includes(cleanQuery)
-            );
+            for (const filter of filters) {
+                // @ts-ignore
+                if (item[`${filter}`]?.toLowerCase().includes(cleanQuery)) {
+                    return true
+                }
+            }
         })
     } else {
         return items
@@ -53,44 +65,14 @@ export const searchItems = (items: CigarItem[], searchQuery: string): CigarItem[
 }
 
 export const filterStore = (items: CigarItem[], selectedStores: string[]): CigarItem[] => {
-    // filter seafood list based on query match, runs more frequently
-    selectedStores;
-    /* if (selectedStores.length > 0) {
-        return seafoodItems.filter((item) => {
-            return selectedStores.some((store) => {
-                return (
-                    store == 'fairfield'
-                        ? item.fairfieldStatus == "In Stock"
-                        : store == 'eastgate'
-                            ? item.eastgateStatus == "In Stock"
-                            : false
-                );
-            });
-        });
-    } */
+    // filter seafood list based on query match
 
     return items
 }
 
-export const filterCategory = (items: CigarItem[], selectedCategories: string[]): CigarItem[] => {
-    // a more lightweight version that runs on an array of queries
-    //console.log(additionalQueries);
-
-    if (selectedCategories.length > 0) {
-        return items.filter((item) => {
-            return selectedCategories.some((query) => {
-                return (
-                    item.brand.toLowerCase().includes(query.toLowerCase())
-                );
-            });
-        });
-    } else {
-        return items
-    }
-}
 
 // TODO: create sort generic behavior
-export const sortSeafood = (filteredSeafoodItems: CigarItem[], sortQuery: string, selectedStores: string[], IP: string): CigarItem[] => {
+export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selectedStores: string[], IP: string): CigarItem[] => {
 
     // Sort the filtered array
     const cleanPrice = (price: string): number => {
@@ -99,34 +81,31 @@ export const sortSeafood = (filteredSeafoodItems: CigarItem[], sortQuery: string
         return cleanedPrice === "" ? 0.0 : parseFloat(cleanedPrice); // Convert cleaned string to a float
     };
 
-    const getHardcodedCategory = (item: CigarItem): string => {
+    /* const getHardcodedCategory = (item: CigarItem): string => { // if you want to brute force a category order you can modify this utility
         return item.brand.includes("Out of Stock / Season")
-            ? 'zzzzzzzzzzz'
+            ? 'zzzzzzzzzzz' // place category last always
             : item.brand.includes("Weekly Sale Items")
-                ? 'aaaaaaaaaaa'
+                ? 'aaaaaaaaaaa' // place category first always
                 : item.brand.includes("Whole Fish")
-                    ? 'aaaaaaaaaab'
+                    ? 'aaaaaaaaaab' // place category second always
                     : item.brand
-    }
+    } */
 
     if (sortQuery === '') {
-        return filteredSeafoodItems
+        return filteredItems
     } else {
-        let sortedSeafoodItems: CigarItem[] = filteredSeafoodItems
+        let sortedSeafoodItems: CigarItem[] = filteredItems
         switch (sortQuery) {
             case "category":
                 {
-                    filteredSeafoodItems.sort((a, b) => {
-                        const aCat = getHardcodedCategory(a);
-                        const bCat = getHardcodedCategory(b)
-
-                        return aCat?.localeCompare(bCat);
+                    filteredItems.sort((a, b) => {
+                        return a.brand?.localeCompare(b.brand);
                     })
                     break;
                 }
             case "price ascending":
                 {
-                    filteredSeafoodItems.sort((a, b) => {
+                    filteredItems.sort((a, b) => {
                         const aPrice = cleanPrice(getPrice(a, IP, selectedStores) ?? '99999999'); // Convert price to number
                         const bPrice = cleanPrice(getPrice(b, IP, selectedStores) ?? '99999999');
 
@@ -136,7 +115,7 @@ export const sortSeafood = (filteredSeafoodItems: CigarItem[], sortQuery: string
                 }
             case "price descending":
                 {
-                    filteredSeafoodItems.sort((a, b) => {
+                    filteredItems.sort((a, b) => {
                         const aPrice = cleanPrice(getPrice(a, IP, selectedStores) ?? '0'); // Convert price to number
                         const bPrice = cleanPrice(getPrice(b, IP, selectedStores) ?? '0');
 
@@ -146,7 +125,7 @@ export const sortSeafood = (filteredSeafoodItems: CigarItem[], sortQuery: string
                 }
             case "alphabetically":
                 {
-                    filteredSeafoodItems.sort((a, b) => {
+                    filteredItems.sort((a, b) => {
                         return a.description?.localeCompare(b.description);
                     })
                     break;
