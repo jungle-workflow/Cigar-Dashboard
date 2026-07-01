@@ -52,19 +52,27 @@ export const fetchCigarData = async (): Promise<CigarItem[]> => {
     }
 }
 
-export const searchItems = (items: CigarItem[], searchQuery: string, filters: string[]): CigarItem[] => {
-    // filter bottle list based on query match
-    const cleanQuery = `${searchQuery}`.toLowerCase()
-    if (cleanQuery) {
+export const searchItems = (items: CigarItem[], searchQueries: string[], filters: string[]): CigarItem[] => {
+    // filter items based on query match and dynamic filters
+    console.log(searchQueries);
+    
+    if (searchQueries.length > 0) {
         return items.filter((item) => {
-            for (const filter of filters) {
-                // @ts-ignore
-                if (item[`${filter}`]?.toLowerCase().includes(cleanQuery)) {
-                    return true
+            for (const query of searchQueries) {
+                const cleanQuery = `${query}`.toLowerCase()
+                if (cleanQuery) {
+                    for (const filter of filters) {
+                        // @ts-ignore
+                        if (item[`${filter}`]?.toLowerCase().includes(cleanQuery)) {
+                            return true
+                        }
+                    }
                 }
             }
         })
     } else {
+        console.log("length not satisfied, returning items");
+        
         return items
     }
 }
@@ -103,8 +111,6 @@ export const filterStore = (items: CigarItem[], selectedStores: string[]): Cigar
     }
 }
 
-
-// TODO: create sort generic behavior
 export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selectedStores: string[], IP: string): CigarItem[] => {
 
     // Sort the filtered array

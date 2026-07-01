@@ -23,7 +23,7 @@ function App() {
   const [sortQuery, setSortQuery] = useState<string>('')
   const [selectedStore, setSelectedStores] = useState<string[]>([])
   const [userIP, setUserIP] = useState<string>('')
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
   //const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [viewportRes, setViewportRes] = useState({ x: window.innerWidth, y: window.innerHeight })
   const [isMobile, setIsMobile] = useState(viewportRes.x < 650)
@@ -120,16 +120,9 @@ function App() {
     //setTypes(assembleSeafoodTypes(seafoodItems, seafoodTypes))
   }, [items])
 
-
   useEffect(() => {  // when the user searches for a keyword, filter it here
-    console.log("[searchQuery, selectedStore, selectedCategories]", selectedStore)
-    const filteredList = orderedItems()
-    console.log(filteredList);
-    
-    setFilteredItems(filteredList)
-
-  }, [searchQuery, selectedStore, selectedCategories, sortQuery])
-
+    setFilteredItems([...orderedItems()])
+  }, [searchQuery, selectedStore, selectedFilters, sortQuery])
 
   useEffect(() => { // window size listener
     const handleResize = () => {
@@ -146,14 +139,15 @@ function App() {
     };
   }, [window.innerWidth, window.innerHeight, items]);
 
-
   const orderedItems = (): CigarItem[] => {
-    // wine type > country > search query > sort
     return sortItems(
       searchItems(
-        filterStore(items, selectedStore),
-        searchQuery, [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
-      ), sortQuery, selectedStore, userIP
+        searchItems(
+          filterStore(items, selectedStore),
+          [searchQuery], [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
+        ), selectedFilters, [itemPropKeys.brand]
+      ),
+      sortQuery, selectedStore, userIP
     )
   }
 
@@ -162,29 +156,24 @@ function App() {
     setSortQuery(currentVal)
   }
 
-  const handleFilterCategory = (query: string) => {
-    const newCats = selectedCategories;
-    if (newCats.includes(query)) {
-      newCats.splice(newCats.indexOf(query), 1)
-    } else {
-      newCats.push(query)
-    }
-
-    setSelectedCategories(newCats)
+  const handleFilter = (query: string) => { // handle toggle list of filters from the filter panel
+    setSelectedFilters([...toggle(selectedFilters, query)])
   }
 
   const handleFilterStore = (query: string) => { // handle store preference
-    // toggle items when clicked
-    let newArray = selectedStore;
+    setSelectedStores([...toggle(selectedStore, query)])
+  }
+
+  const toggle = (array: any[], query: any) => {
+    // toggle item from array
+    let newArray = array;
     if (newArray.includes(query)) {
       newArray = newArray.filter((item) => item != query)
     } else {
       newArray.push(query)
     }
-
-    setSelectedStores([...newArray])
+    return newArray
   }
-
 
   return (
     <>
@@ -265,7 +254,7 @@ function App() {
             isMobile ?
               <div className='filterToolbar'>
                 <WithPopUp viewportRes={viewportRes} title='Categories' scrollable={true}>
-                  <FilterPanel filters={categories} activeFilters={selectedCategories} handleFilter={handleFilterCategory} />
+                  <FilterPanel filters={categories} activeFilters={selectedFilters} handleFilter={handleFilter} />
                 </WithPopUp>
                 {/*  <WithPopUp viewportRes={viewportRes} title='Fish Types' scrollable={true}>
                   <FilterPanel filters={types} activeFilters={selectedTypes} handleFilter={handleFilterDescription} />
@@ -282,9 +271,9 @@ function App() {
           marginBottom: `${!isMobile ? "30px" : 0}`
         }}>
           {filteredItems.length} Results
-          {selectedCategories.length > 0 && ` >`}
-          {selectedCategories.map((filter, index) => {
-            return <span key={index}>{` ${filter}${index == selectedCategories.length - 1 ? `` : `,`}`}</span>
+          {selectedFilters.length > 0 && ` >`}
+          {selectedFilters.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFilters.length - 1 ? `` : `,`}`}</span>
           })}
           <br />
           All items are subject to availability.
@@ -299,7 +288,7 @@ function App() {
                 !isMobile ?
                   <div id="filterWrapper" style={{ top: `${navHeight + 10}px` }}>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={categories} activeFilters={selectedCategories} handleFilter={handleFilterCategory} />
+                      <FilterPanel filters={categories} activeFilters={selectedFilters} handleFilter={handleFilter} />
                     </WithSidePanel>
                     {/*  <WithSidePanel viewportRes={viewportRes} scrollable={true}>
                       <FilterPanel filters={types} activeFilters={selectedTypes} handleFilter={handleFilterDescription} />

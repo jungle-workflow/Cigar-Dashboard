@@ -22,12 +22,13 @@ interface InputProps {
 }
 export function FilterInput({ filter, activeFilters, handleFilter }: InputProps) {
     const [checked, setChecked] = useState<boolean>(false)
+    const [id, setId] = useState<string>(nanoid())
     useEffect(() => {
         activeFilters?.includes(filter) ? setChecked(true) : setChecked(false)
     }, [])
 
     return <>
-        <div style={{ gap: '4px', padding: 0, height: 'min-content' }} key={`${filter}-${nanoid()}`}><input type='checkbox' checked={checked} value={filter} onChange={() => { handleFilter(filter); setChecked(!checked) }} />
+        <div style={{ gap: '4px', padding: 0, height: 'min-content' }} key={`${filter}-${id}`}><input type='checkbox' checked={checked} value={filter} onChange={() => { handleFilter(filter); setChecked(!checked) }} />
             <p style={{ margin: 0 }}>{filter}</p>
         </div>
     </>
