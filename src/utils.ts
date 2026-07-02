@@ -6,7 +6,7 @@ export type CigarItem = {
     price: number,
     restrictions: string,
 }
-export const itemPropKeys = {
+export const itemPropKeys: Record<keyof CigarItem, keyof CigarItem> = {
     brand: "brand",
     description: "description",
     size: "size",
@@ -52,29 +52,23 @@ export const fetchCigarData = async (): Promise<CigarItem[]> => {
     }
 }
 
-export const searchItems = (items: CigarItem[], searchQueries: string[], filters: string[]): CigarItem[] => {
+export const searchItems = (items: CigarItem[], searchQueries: string[], filters: (keyof CigarItem)[]): CigarItem[] => {
     // filter items based on query match and dynamic filters
     console.log(searchQueries);
-    
-    if (searchQueries.length > 0) {
-        return items.filter((item) => {
-            for (const query of searchQueries) {
-                const cleanQuery = `${query}`.toLowerCase()
-                if (cleanQuery) {
-                    for (const filter of filters) {
-                        // @ts-ignore
-                        if (item[`${filter}`]?.toLowerCase().includes(cleanQuery)) {
-                            return true
-                        }
-                    }
-                }
-            }
-        })
-    } else {
-        console.log("length not satisfied, returning items");
-        
-        return items
-    }
+
+    const cleanQueries = searchQueries
+        .map((query) => `${query}`.trim().toLowerCase())
+        .filter(Boolean)
+
+    if (cleanQueries.length === 0) { return items }
+
+    return items.filter((item) =>
+        cleanQueries.some((query) =>
+            filters.some((filter) =>
+                String(item[filter] ?? '').toLowerCase().includes(query)
+            )
+        )
+    )
 }
 
 export const filterStore = (items: CigarItem[], selectedStores: string[]): CigarItem[] => {
@@ -245,3 +239,5 @@ export const setWPStyles = () => {
     header && Object.assign(header.style, navStyle);
 
 }
+
+const debug = (message: string, debugging: boolean) => debugging ?? console.log(message)
