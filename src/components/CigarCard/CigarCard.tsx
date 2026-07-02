@@ -3,11 +3,11 @@ import './CigarCard.css'
 
 interface cardProps {
     item: CigarItem
-    selectedStores: string[]
-    IP: string
+    /* selectedStores: string[]
+    IP: string */
 }
 
-export function CigarCard({ item, selectedStores, IP }: cardProps) {
+export function CigarCard({ item, /* selectedStores, IP */ }: cardProps) {
     return <>
         <div className="seafoodItem">
             <div>
@@ -34,13 +34,24 @@ export function CigarCard({ item, selectedStores, IP }: cardProps) {
                         fontWeight: 800,
                         margin: '0px',
                     }}>{item.restrictions}</p>
+                    
+                    <p style={{
+                        fontSize: '16px',
+                        fontWeight: 800,
+                        margin: '0px',
+                    }}>{item.size}</p>
+                    <p style={{
+                        fontSize: '16px',
+                        fontWeight: 800,
+                        margin: '0px',
+                    }}>{item.strength}</p>
                 </div>
             </div>
             <div>
                 <h3 style={{
                     fontWeight: 900, textTransform: "lowercase",
-                    fontSize: `${getPrice(item, IP, selectedStores) == "Out of Stock" ? '22px' : ''}`
-                }}>{`${getPrice(item, IP, selectedStores) ?? ""}`}</h3>
+                    fontSize: `${getPrice(item, /* IP, selectedStores */) == "Out of Stock" ? '22px' : ''}`
+                }}>{`$${Number(getPrice(item, /* IP, selectedStores */)).toFixed(2)}`}</h3>
             </div>
         </div>
     </>

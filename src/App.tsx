@@ -5,6 +5,7 @@ import { CigarCard } from './components/CigarCard/CigarCard'
 import { FilterPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
 import { STORES } from './utils'
+import { ScrollPopup } from './components/ScrollPopup/ScrollPopup'
 
 const notFoundIcons = [
   `( ╥﹏╥) ノシ`,
@@ -18,13 +19,15 @@ function App() {
   const [items, setItems] = useState<CigarItem[]>([])
   const [filteredItems, setFilteredItems] = useState<CigarItem[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  //const [types, setTypes] = useState<string[]>([])
+  const [sizes, setSizes] = useState<string[]>([])
+  const [strengths, setStrengths] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [sortQuery, setSortQuery] = useState<string>('')
   const [selectedStore, setSelectedStores] = useState<string[]>([])
-  const [userIP, setUserIP] = useState<string>('')
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
-  //const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+  // const [userIP, setUserIP] = useState<string>('')
+  const [selectedFiltersBrand, setSelectedFiltersBrand] = useState<string[]>([])
+  const [selectedFiltersSize, setSelectedFiltersSize] = useState<string[]>([])
+  const [selectedFiltersStrength, setSelectedFiltersStrength] = useState<string[]>([])
   const [viewportRes, setViewportRes] = useState({ x: window.innerWidth, y: window.innerHeight })
   const [isMobile, setIsMobile] = useState(viewportRes.x < 650)
   const [jcfDestroyed, setJcfDestroyed] = useState<boolean>(false)
@@ -34,24 +37,24 @@ function App() {
 
 
   useEffect(() => {  //execute the initial fetches
-    console.log("v .1");
+    console.log("v .5");
 
 
     import.meta.env.PROD ? undefined : setDevelopmentStyles()
     setTimeout(setWPStyles, 500);
 
     // get user IP
-    fetch('https://api64.ipify.org?format=json')
+    /* fetch('https://api64.ipify.org?format=json')
       .then(response => response.json())
       .then(data => setUserIP(data.ip))
-      .catch(error => console.error('Error fetching IP:', error));
+      .catch(error => console.error('Error fetching IP:', error)); */
 
     const fetchData = async () => {
       try {
         //console.log("Fetching data");
         const data = await fetchCigarData();
         setItems(data);
-        setFilteredItems(filterStore(sortItems((data), 'category', selectedStore, userIP), selectedStore))
+        setFilteredItems(filterStore(sortItems((data), 'category', /* selectedStore, */ /* userIP */), selectedStore))
       } catch {
         //console.log("Error fetching data in useEffect");
       }
@@ -112,6 +115,18 @@ function App() {
     const uniqueCategories = Array.from(new Set(categories));
     setCategories(uniqueCategories)
 
+    const sizes = items
+      .map(item => item.size.trim())
+      .filter(size => size); // Filter out empty or whitespace-only item
+    const uniqueSizes = Array.from(new Set(sizes));
+    setSizes(uniqueSizes)
+
+    const strengths = items
+      .map(item => item.strength.trim())
+      .filter(strength => strength); // Filter out empty or whitespace-only item
+    const uniqueStrengths = Array.from(new Set(strengths));
+    setStrengths(uniqueStrengths)
+
     if (appLoading && (items.length > 0)) {
       setAppLoading(false)
     }
@@ -122,7 +137,7 @@ function App() {
 
   useEffect(() => {  // when the user searches for a keyword, filter it here
     setFilteredItems([...orderedItems()])
-  }, [searchQuery, selectedStore, selectedFilters, sortQuery])
+  }, [searchQuery, selectedStore, selectedFiltersBrand, selectedFiltersSize, selectedFiltersStrength, sortQuery])
 
   useEffect(() => { // window size listener
     const handleResize = () => {
@@ -143,11 +158,15 @@ function App() {
     return sortItems(
       searchItems(
         searchItems(
-          filterStore(items, selectedStore),
-          [searchQuery], [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
-        ), selectedFilters, [itemPropKeys.brand]
+          searchItems(
+            searchItems(
+              filterStore(items, selectedStore),
+              [searchQuery], [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
+            ), selectedFiltersBrand, [itemPropKeys.brand]
+          ), selectedFiltersSize, [itemPropKeys.size]
+        ), selectedFiltersStrength, [itemPropKeys.strength]
       ),
-      sortQuery, selectedStore, userIP
+      sortQuery, /* selectedStore, userIP */
     )
   }
 
@@ -156,8 +175,14 @@ function App() {
     setSortQuery(currentVal)
   }
 
-  const handleFilter = (query: string) => { // handle toggle list of filters from the filter panel
-    setSelectedFilters([...toggle(selectedFilters, query)])
+  const handleFilterBrand = (query: string) => { // handle toggle list of filters from the filter panel
+    setSelectedFiltersBrand([...toggle(selectedFiltersBrand, query)])
+  }
+  const handleFilterSize = (query: string) => { // handle toggle list of filters from the filter panel
+    setSelectedFiltersSize([...toggle(selectedFiltersSize, query)])
+  }
+  const handleFilterStrength = (query: string) => { // handle toggle list of filters from the filter panel
+    setSelectedFiltersStrength([...toggle(selectedFiltersStrength, query)])
   }
 
   const handleFilterStore = (query: string) => { // handle store preference
@@ -177,7 +202,9 @@ function App() {
 
   return (
     <>
+      <ScrollPopup />
       <div id="appContainer" ref={appContainerRef}>
+
         <div style={{
           position: "relative",
           /* transform: `${isMobile ? 'none' : 'translateY(8px)'}` */
@@ -253,34 +280,69 @@ function App() {
           {
             isMobile ?
               <div className='filterToolbar'>
-                <WithPopUp viewportRes={viewportRes} title='Categories' scrollable={true}>
-                  <FilterPanel filters={categories} activeFilters={selectedFilters} handleFilter={handleFilter} />
+                <WithPopUp viewportRes={viewportRes} title='Brand' scrollable={true}>
+                  <FilterPanel filters={categories} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
                 </WithPopUp>
-                {/*  <WithPopUp viewportRes={viewportRes} title='Fish Types' scrollable={true}>
-                  <FilterPanel filters={types} activeFilters={selectedTypes} handleFilter={handleFilterDescription} />
-                </WithPopUp> */}
+                <WithPopUp viewportRes={viewportRes} title='Size' scrollable={true}>
+                  <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />
+                </WithPopUp>
+                <WithPopUp viewportRes={viewportRes} title='Strength' scrollable={true}>
+                  <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
+                </WithPopUp>
 
               </div> : undefined
           }
         </div>
-
-
 
         <p style={{
           color: "#e9e5d4", fontWeight: 500, fontStyle: 'italic', width: '100%', textAlign: 'right', paddingRight: '6px', margin: 0,
           marginBottom: `${!isMobile ? "30px" : 0}`
         }}>
           {filteredItems.length} Results
-          {selectedFilters.length > 0 && ` >`}
-          {selectedFilters.map((filter, index) => {
-            return <span key={index}>{` ${filter}${index == selectedFilters.length - 1 ? `` : `,`}`}</span>
+          {selectedFiltersBrand.length > 0 && ` >`}
+          {selectedFiltersBrand.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFiltersBrand.length - 1 ? `` : `,`}`}</span>
           })}
           <br />
           All items are subject to availability.
-          <br />Items are priced per pound or as specified.
         </p>
 
-
+        {/* <div style={{ position: 'relative', overflow: 'visible', height: '30px', width: '50px', margin: 0, padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
+          <div className='scrollAnim' style={{
+            position: 'absolute', width: '100vw', outline: 'red solid 2px', color: 'red', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', flexWrap: 'nowrap'
+          }}>
+            {Array(5).fill(null).map((_, i) => (
+              <p key={i}>10% OFF 20 CIGARS</p>
+            ))}
+          </div>
+        </div> */}
+        <div style={{
+          position: 'relative',
+          overflow: 'hidden',
+          width: '100%',
+          outline: 'red solid 2px',
+          background: 'red',
+          color: 'beige'
+        }}>
+          <div className="scrollAnim" style={{
+            display: 'flex',
+            width: 'max-content',   // sized to actual content, not viewport
+            gap: '20px'
+          }}>
+            {/* first copy */}
+            {Array(5).fill(null).map((_, i) => (
+              <p key={`a-${i}`} style={{ whiteSpace: 'nowrap', margin: 0 }}>
+                10% OFF 20 CIGARS
+              </p>
+            ))}
+            {/* duplicate copy — required for seamless loop */}
+            {Array(5).fill(null).map((_, i) => (
+              <p key={`b-${i}`} style={{ whiteSpace: 'nowrap', margin: 0 }}>
+                10% OFF 20 CIGARS
+              </p>
+            ))}
+          </div>
+        </div>
         {
           appLoading ? <LoadingWidget /> :
             <div id="listWrapper">
@@ -288,16 +350,19 @@ function App() {
                 !isMobile ?
                   <div id="filterWrapper" style={{ top: `${navHeight + 10}px` }}>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={categories} activeFilters={selectedFilters} handleFilter={handleFilter} />
+                      <FilterPanel filters={categories} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
                     </WithSidePanel>
-                    {/*  <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={types} activeFilters={selectedTypes} handleFilter={handleFilterDescription} />
-                    </WithSidePanel> */}
+                    <WithSidePanel viewportRes={viewportRes} scrollable={true}>
+                      <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />
+                    </WithSidePanel>
+                    <WithSidePanel viewportRes={viewportRes} scrollable={true}>
+                      <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
+                    </WithSidePanel>
                   </div> : undefined
               }
               <div id="seafoodList">
                 {filteredItems.length > 0 ? filteredItems.map((item, index) => {
-                  return <CigarCard key={index} item={item} selectedStores={selectedStore} IP={userIP}></CigarCard>
+                  return <CigarCard key={index} item={item} /* selectedStores={selectedStore} */ /* IP={userIP} */></CigarCard>
                 }) : <div style={{ flexDirection: 'column' }} className='wineBottle'><p>None of our seafood matches your search!</p><p>{notFoundIcons[Math.floor(Math.random() * 4)]}</p></div>}
               </div>
             </div>

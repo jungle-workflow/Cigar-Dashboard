@@ -26,7 +26,7 @@ export const STORES = {
 }
 
 
-export const getPrice = (item: CigarItem, userIP: string, selectedStores: string[]): string => { // this method exists to display a different price if they vary between stores
+export const getPrice = (item: CigarItem, /* userIP: string, */ /* selectedStores: string[] */): string => { // this method exists to display a different price if they vary between stores
     return `${item.price}`
 }
 
@@ -44,7 +44,7 @@ export const fetchCigarData = async (): Promise<CigarItem[]> => {
         }
 
         const cigarData = await response.json();
-        console.log(cigarData);
+        debug(cigarData);
         return cigarData.cigarDeals as CigarItem[]
     } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
@@ -54,7 +54,7 @@ export const fetchCigarData = async (): Promise<CigarItem[]> => {
 
 export const searchItems = (items: CigarItem[], searchQueries: string[], filters: (keyof CigarItem)[]): CigarItem[] => {
     // filter items based on query match and dynamic filters
-    console.log(searchQueries);
+    debug(searchQueries);
 
     const cleanQueries = searchQueries
         .map((query) => `${query}`.trim().toLowerCase())
@@ -72,14 +72,14 @@ export const searchItems = (items: CigarItem[], searchQueries: string[], filters
 }
 
 export const filterStore = (items: CigarItem[], selectedStores: string[]): CigarItem[] => {
-    console.log("filtering store", selectedStores)
+    debug(["filtering store", selectedStores])
     // combos fairfield = restrictions.none and restrictions.ffonly
     // combos eastgate = restrictions.none and restrictions.egonly
     // combos none = restrictions.none and restrictions.ffonly and restrictions.egonly
     // combos both = restrictions.none and restrictions.ffonly and restrictions.egonly
 
     if ((selectedStores.includes(STORES.FF) && selectedStores.includes(STORES.EG)) || (selectedStores.length == 0 || selectedStores.includes(""))) {
-        console.log("1")
+        debug("1")
         return items.filter((item) =>
             item.restrictions == undefined ||
             item.restrictions == RESTRICTIONS.none ||
@@ -87,14 +87,14 @@ export const filterStore = (items: CigarItem[], selectedStores: string[]): Cigar
             item.restrictions == RESTRICTIONS.egOnly
         )
     } else if (selectedStores.includes(STORES.FF)) {
-        console.log("2")
+        debug("2")
         return items.filter((item) =>
             item.restrictions == undefined ||
             item.restrictions == RESTRICTIONS.none ||
             item.restrictions == RESTRICTIONS.ffOnly
         )
     } else if (selectedStores.includes(STORES.EG)) {
-        console.log("3")
+        debug("3")
         return items.filter((item) =>
             item.restrictions == undefined ||
             item.restrictions == RESTRICTIONS.none ||
@@ -105,7 +105,7 @@ export const filterStore = (items: CigarItem[], selectedStores: string[]): Cigar
     }
 }
 
-export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selectedStores: string[], IP: string): CigarItem[] => {
+export const sortItems = (filteredItems: CigarItem[], sortQuery: string, /* selectedStores: string[], */ /* IP: string */): CigarItem[] => {
 
     // Sort the filtered array
     const cleanPrice = (price: string): number => {
@@ -139,8 +139,8 @@ export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selecte
             case "price ascending":
                 {
                     filteredItems.sort((a, b) => {
-                        const aPrice = cleanPrice(getPrice(a, IP, selectedStores) ?? '99999999'); // Convert price to number
-                        const bPrice = cleanPrice(getPrice(b, IP, selectedStores) ?? '99999999');
+                        const aPrice = cleanPrice(getPrice(a, /* IP, selectedStores */) ?? '99999999'); // Convert price to number
+                        const bPrice = cleanPrice(getPrice(b, /* IP, selectedStores */) ?? '99999999');
 
                         return aPrice - bPrice; // Ascending order by Price
                     })
@@ -149,8 +149,8 @@ export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selecte
             case "price descending":
                 {
                     filteredItems.sort((a, b) => {
-                        const aPrice = cleanPrice(getPrice(a, IP, selectedStores) ?? '0'); // Convert price to number
-                        const bPrice = cleanPrice(getPrice(b, IP, selectedStores) ?? '0');
+                        const aPrice = cleanPrice(getPrice(a, /* IP, selectedStores */) ?? '0'); // Convert price to number
+                        const bPrice = cleanPrice(getPrice(b, /* IP, selectedStores */) ?? '0');
 
                         return bPrice - aPrice; // Ascending order by Price
                     })
@@ -173,7 +173,7 @@ export const sortItems = (filteredItems: CigarItem[], sortQuery: string, selecte
 }
 
 export const setDevelopmentStyles = () => {
-    console.log('setting dev styles');
+    debug('setting dev styles');
 
     const DevelopmentStyles = [
         '<link rel="stylesheet" href="../../Default CSS/907ce8a0_ai1ec_parsed_css.css">',
@@ -239,5 +239,5 @@ export const setWPStyles = () => {
     header && Object.assign(header.style, navStyle);
 
 }
-
-const debug = (message: string, debugging: boolean) => debugging ?? console.log(message)
+export let debugging = true
+export const debug = (message: any) => debugging && console.log(message)

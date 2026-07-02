@@ -22,13 +22,14 @@ interface InputProps {
 }
 export function FilterInput({ filter, activeFilters, handleFilter }: InputProps) {
     const [checked, setChecked] = useState<boolean>(false)
-    const [id, setId] = useState<string>(nanoid())
+    const id = useRef<string>(nanoid())
     useEffect(() => {
         activeFilters?.includes(filter) ? setChecked(true) : setChecked(false)
     }, [])
 
     return <>
-        <div style={{ gap: '4px', padding: 0, height: 'min-content' }} key={`${filter}-${id}`}><input type='checkbox' checked={checked} value={filter} onChange={() => { handleFilter(filter); setChecked(!checked) }} />
+        <div style={{ gap: '4px', padding: 0, height: 'min-content' }} key={`${filter}-${id}`}>
+            <input type='checkbox' checked={checked} value={filter} onChange={() => { handleFilter(filter); setChecked(!checked) }} />
             <p style={{ margin: 0 }}>{filter}</p>
         </div>
     </>
@@ -40,7 +41,6 @@ interface PanelProps {
     viewportRes: { x: number, y: number }
     scrollable: boolean
     title?: string
-
 }
 
 export const WithSidePanel = ({ children, viewportRes, scrollable }: PanelProps) => {
@@ -93,12 +93,12 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelPro
     }, []);
 
     return (
-        <div  className="filterPanel" key={nanoid()} style={{ position: 'relative' }} onClick={toggleVisible}>
+        <div className="filterPanel" key={nanoid()} style={{ position: 'relative' }} onClick={toggleVisible}>
             <span style={{ fontSize: '20px', fontVariationSettings: `'FILL' 1` }} className="material-symbols-outlined">bolt</span>
             <p style={{ fontWeight: 600, textWrap: "nowrap", padding: '5px', margin: 0 }}>{title}</p>
             {visible ? <div ref={filterRef} id="expandedMobileCategories" style={{
                 display: `flex`,
-                opacity: `${visible ? 1: 0}`,
+                opacity: `${visible ? 1 : 0}`,
                 pointerEvents: `${visible ? 'all' : 'none'}`,
                 flexDirection: 'column',
                 gap: '4px',

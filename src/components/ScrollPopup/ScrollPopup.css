@@ -1,0 +1,17 @@
+.popup {
+  position: fixed;
+  z-index: 1000;
+  left: clamp(10px, 2vw + 10px, 30px);
+  right: clamp(10px, 2vw + 10px, 30px);
+  bottom: 50px;
+  height: clamp(140px, 2vw + 10px, 175px);
+  /* width: 40svw; */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2078431373)) drop-shadow(5px 5px 8px rgba(0, 0, 0, 0.0823529412)) drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.1137254902));
+  overflow: visible;
+  /* pointer-events: none; */
+  background: beige;
+}/*# sourceMappingURL=ScrollPopup.css.map */

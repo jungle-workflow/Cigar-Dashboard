@@ -70,6 +70,7 @@ select {
   top: 60px;
   pointer-events: none;
   filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 2px 4px);
+  z-index: 100;
 }
 
 .inputWrapper {
@@ -119,4 +120,17 @@ select.noAppearance {
   outline: 1px solid #e9e5d4;
   background: #e9e5d4;
   color: #2a4731;
+}
+
+.scrollAnim {
+  animation: scroll-left 15s linear infinite;
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }/*# sourceMappingURL=App.css.map */

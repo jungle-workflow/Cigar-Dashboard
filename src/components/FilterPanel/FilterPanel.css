@@ -38,6 +38,7 @@
 #filterWrapper .filterPanel {
   height: -moz-min-content;
   height: min-content;
+  max-height: 25vh;
   padding: 12px;
   overflow: hidden;
   display: flex;
