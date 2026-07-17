@@ -33,7 +33,7 @@ export const ScrollPopup = () => {
             >x</button>
             {/* <h4>Don't Forget!</h4> */}
             <img src="https://junglejims.com/wp-content/uploads/10Off.png" />
-            <p>You get 10% off when you purchase 20 or more cigars!</p>
+            <p>Save 10% when you buy 20 or more cigars! Mix & Match.</p>
             
         </div>
         : undefined;

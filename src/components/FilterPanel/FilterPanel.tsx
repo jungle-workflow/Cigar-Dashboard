@@ -41,6 +41,7 @@ interface PanelProps {
     viewportRes: { x: number, y: number }
     scrollable: boolean
     title?: string
+    handlePopUp?: (visible: boolean) => void
 }
 
 export const WithSidePanel = ({ children, viewportRes, scrollable }: PanelProps) => {
@@ -55,7 +56,7 @@ export const WithSidePanel = ({ children, viewportRes, scrollable }: PanelProps)
     return <div ref={filterRef} key={nanoid()} style={{ overflowY: `${isOverflowing ? `scroll` : `hidden`}` }} className="filterPanel">{children}</div>
 }
 
-export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelProps) => {
+export const WithPopUp = ({ children, title, viewportRes, scrollable, handlePopUp }: PanelProps) => {
     const [visible, setVisible] = useState<boolean>(false)
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false)
     const filterRef = useRef<HTMLDivElement | null>(null)
@@ -65,14 +66,20 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelPro
     }, [viewportRes])
 
     const toggleVisible = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if (!(e.target instanceof HTMLInputElement)) {
+        console.log([...e.currentTarget.classList]);
+        //if (!(e.target instanceof HTMLInputElement)) {
+        if (([...e.currentTarget.classList].includes("filterPanel"))) {
             setVisible(!visible)
-            filterRef.current ? filterRef.current.focus() : undefined/* console.log("filterref not available") */;
+            filterRef.current ? filterRef.current.focus() : undefined /* console.log("filterref not available") */;
         }
     }
 
+    useEffect(() => {
+        console.log(visible)
+    }, [visible])
+
     const handleBlur = () => {
-        setVisible(!visible)
+        //setVisible(!visible)
     }
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -96,44 +103,37 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelPro
         <div className="filterPanel" key={nanoid()} style={{ position: 'relative' }} onClick={toggleVisible}>
             <span style={{ fontSize: '20px', fontVariationSettings: `'FILL' 1` }} className="material-symbols-outlined">bolt</span>
             <p style={{ fontWeight: 600, textWrap: "nowrap", padding: '5px', margin: 0 }}>{title}</p>
-            {visible
-                ? <div ref={filterRef} className="expandedMobileCategories" /* style={{
-                    display: `flex`,
-                    opacity: `${visible ? 1 : 0}`,
-                    pointerEvents: `${visible ? 'all' : 'none'}`,
-                    flexDirection: 'column',
-                    gap: '4px',
-                    alignItems: 'flex-start',
-                    //position: 'absolute',
-                    //height: 'auto',
-                    maxHeight: 'min-content',
-                    //top: '40px',
-                    //right: '0',
-                    textAlign: "left",
-                    textWrap: "nowrap",
-                    fontWeight: 600,
-                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-                    padding: '14px',
-                    borderRadius: '0',
-                    //overflowY: `${isOverflowing ? `scroll` : `hidden`}`,
-
-                    height: 'calc(-258px + 100vh)', width: '100vw',
-                    inset: "200px -19px 0px",
-                    boxSizing: "border-box", position: "fixed", overflowY: 'scroll',
-                }} */
-                    tabIndex={0}
-                    onBlur={handleBlur}>
-                    <div style={{
-                        borderRadius: "12px 0 0 0",
-                        position: "static"
-                    }}>
-                        {title}
-                    </div>
-                    <div className="children">
-                        {children}
-                    </div>
-                </div>
-                : undefined}
+            {/* moved this out into the main app breakout */}
+            <PopupPanel visible={visible} title={title} filterRef={filterRef} children={children} />
         </div>
     )
+}
+
+interface PopupProps {
+    visible: boolean
+    title: string | undefined
+    filterRef?: React.MutableRefObject<HTMLDivElement | null>
+    children: ReactNode
+}
+
+export const PopupPanel = ({ visible, title, filterRef, children }: PopupProps) => {
+    return <>
+        {visible
+            ? <div /* ref={filterRef} */ className="expandedMobileCategories" style={{
+                opacity: `${visible ? 1 : 0}`,
+                pointerEvents: `${visible ? 'all' : 'none'}`,
+            }}
+                tabIndex={0}
+                /* onBlur={handleBlur} */>
+                <div style={{
+                    borderRadius: "12px 0 0 0",
+                    position: "static"
+                }}>
+                    {title}
+                </div>
+                <div className="children">
+                    {children}
+                </div>
+            </div>
+            : undefined}</>
 }

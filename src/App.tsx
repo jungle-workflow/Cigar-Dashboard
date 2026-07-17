@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { fetchCigarData, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys } from './utils'
 import { CigarCard } from './components/CigarCard/CigarCard'
-import { FilterPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
+import { FilterPanel, PopupPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
 import { STORES } from './utils'
 import { ScrollPopup } from './components/ScrollPopup/ScrollPopup'
@@ -289,7 +289,7 @@ function App() {
                 <WithPopUp viewportRes={viewportRes} title='Strength' scrollable={true}>
                   <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
                 </WithPopUp>
-
+              <PopupPanel visible={true} title={"Test"} children={<></>} />
               </div> : undefined
           }
         </div>
