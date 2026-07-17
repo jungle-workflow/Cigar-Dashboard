@@ -220,7 +220,8 @@ function App() {
             <h1 style={{
               textAlign: 'left',
               color: '#e9e5d4',
-              margin: 0,
+              margin: '4px',
+              marginBottom: '8px',
             }}>
               Cigar Deals
             </h1>
@@ -240,7 +241,6 @@ function App() {
                 {STORES.EG.toUpperCase()}
               </button>
             </div>
-            {/* <p style={{textAlign: "left", padding: "2px 5px", color: "#e9e5d4"}}>All items are subject to availability</p> */}
 
 
 
@@ -303,19 +303,18 @@ function App() {
           {selectedFiltersBrand.map((filter, index) => {
             return <span key={index}>{` ${filter}${index == selectedFiltersBrand.length - 1 ? `` : `,`}`}</span>
           })}
+          {selectedFiltersSize.length > 0 && ` >`}
+          {selectedFiltersSize.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFiltersSize.length - 1 ? `` : `,`}`}</span>
+          })}
+          {selectedFiltersStrength.length > 0 && ` >`}
+          {selectedFiltersStrength.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFiltersStrength.length - 1 ? `` : `,`}`}</span>
+          })}
           <br />
           All items are subject to availability.
         </p>
 
-        {/* <div style={{ position: 'relative', overflow: 'visible', height: '30px', width: '50px', margin: 0, padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
-          <div className='scrollAnim' style={{
-            position: 'absolute', width: '100vw', outline: 'red solid 2px', color: 'red', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', flexWrap: 'nowrap'
-          }}>
-            {Array(5).fill(null).map((_, i) => (
-              <p key={i}>10% OFF 20 CIGARS</p>
-            ))}
-          </div>
-        </div> */}
         <div style={{
           position: 'relative',
           overflow: 'hidden',
@@ -330,14 +329,14 @@ function App() {
             gap: '20px'
           }}>
             {/* first copy */}
-            {Array(5).fill(null).map((_, i) => (
-              <p key={`a-${i}`} style={{ whiteSpace: 'nowrap', margin: 0 }}>
+            {Array(8).fill(null).map((_, i) => (
+              <p key={`a-${i}`} style={{ whiteSpace: 'nowrap', margin: 0, fontWeight: 'bold' }}>
                 10% OFF 20 CIGARS
               </p>
             ))}
             {/* duplicate copy — required for seamless loop */}
-            {Array(5).fill(null).map((_, i) => (
-              <p key={`b-${i}`} style={{ whiteSpace: 'nowrap', margin: 0 }}>
+            {Array(8).fill(null).map((_, i) => (
+              <p key={`b-${i}`} style={{ whiteSpace: 'nowrap', margin: 0, fontWeight: 'bold' }}>
                 10% OFF 20 CIGARS
               </p>
             ))}
@@ -360,10 +359,13 @@ function App() {
                     </WithSidePanel>
                   </div> : undefined
               }
-              <div id="seafoodList">
+              <div id="List">
                 {filteredItems.length > 0 ? filteredItems.map((item, index) => {
                   return <CigarCard key={index} item={item} /* selectedStores={selectedStore} */ /* IP={userIP} */></CigarCard>
-                }) : <div style={{ flexDirection: 'column' }} className='wineBottle'><p>None of our seafood matches your search!</p><p>{notFoundIcons[Math.floor(Math.random() * 4)]}</p></div>}
+                }) : <div style={{ flexDirection: 'column' }} className='Item'>
+                  <p>None of our cigars match your search!</p>
+                  <p>{notFoundIcons[Math.floor(Math.random() * 4)]}</p>
+                </div>}
               </div>
             </div>
         }

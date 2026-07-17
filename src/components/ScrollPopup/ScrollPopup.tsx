@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { debug } from '../../utils';
 import "./ScrollPopup.css"
 
-const SCROLL_THRESHOLD = 300; // px
+const SCROLL_THRESHOLD = 1200; // px
 
 export const ScrollPopup = () => {
     const [showPopup, setShowPopup] = useState(false);
@@ -29,9 +29,12 @@ export const ScrollPopup = () => {
             <button onClick={() => {
                 setShowPopup(false)
                 xD.current = true
-            }}>x</button>
-            <h4>Don't Forget!</h4>
-            <p>You get 10% the best prices in town when you purchase 20 cigars!</p>
+            }}
+            >x</button>
+            {/* <h4>Don't Forget!</h4> */}
+            <img src="https://junglejims.com/wp-content/uploads/10Off.png" />
+            <p>You get 10% off when you purchase 20 or more cigars!</p>
+            
         </div>
         : undefined;
 };

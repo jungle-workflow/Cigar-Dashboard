@@ -77,9 +77,9 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelPro
 
     const handleClickOutside = (event: MouseEvent) => {
         // If clicked outside the menu, close it
-        if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        /* if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
             setVisible(false);
-        }
+        } */
     };
 
     useEffect(() => {
@@ -96,30 +96,44 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable }: PanelPro
         <div className="filterPanel" key={nanoid()} style={{ position: 'relative' }} onClick={toggleVisible}>
             <span style={{ fontSize: '20px', fontVariationSettings: `'FILL' 1` }} className="material-symbols-outlined">bolt</span>
             <p style={{ fontWeight: 600, textWrap: "nowrap", padding: '5px', margin: 0 }}>{title}</p>
-            {visible ? <div ref={filterRef} id="expandedMobileCategories" style={{
-                display: `flex`,
-                opacity: `${visible ? 1 : 0}`,
-                pointerEvents: `${visible ? 'all' : 'none'}`,
-                flexDirection: 'column',
-                gap: '4px',
-                alignItems: 'flex-start',
-                position: 'absolute',
-                height: 'auto',
-                maxHeight: '80svh',
-                top: '40px',
-                right: '0',
-                textAlign: "left",
-                textWrap: "nowrap",
-                fontWeight: 600,
-                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-                padding: '14px',
-                borderRadius: '18px',
-                overflowY: `${isOverflowing ? `scroll` : `hidden`}`
-            }}
-                tabIndex={0}
-                onBlur={handleBlur}>
-                {children}
-            </div> : undefined}
+            {visible
+                ? <div ref={filterRef} className="expandedMobileCategories" /* style={{
+                    display: `flex`,
+                    opacity: `${visible ? 1 : 0}`,
+                    pointerEvents: `${visible ? 'all' : 'none'}`,
+                    flexDirection: 'column',
+                    gap: '4px',
+                    alignItems: 'flex-start',
+                    //position: 'absolute',
+                    //height: 'auto',
+                    maxHeight: 'min-content',
+                    //top: '40px',
+                    //right: '0',
+                    textAlign: "left",
+                    textWrap: "nowrap",
+                    fontWeight: 600,
+                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                    padding: '14px',
+                    borderRadius: '0',
+                    //overflowY: `${isOverflowing ? `scroll` : `hidden`}`,
+
+                    height: 'calc(-258px + 100vh)', width: '100vw',
+                    inset: "200px -19px 0px",
+                    boxSizing: "border-box", position: "fixed", overflowY: 'scroll',
+                }} */
+                    tabIndex={0}
+                    onBlur={handleBlur}>
+                    <div style={{
+                        borderRadius: "12px 0 0 0",
+                        position: "static"
+                    }}>
+                        {title}
+                    </div>
+                    <div className="children">
+                        {children}
+                    </div>
+                </div>
+                : undefined}
         </div>
     )
 }

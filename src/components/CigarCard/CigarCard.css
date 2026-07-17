@@ -1,10 +1,10 @@
-#seafoodList {
+#List {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
 }
-#seafoodList .seafoodItem {
+#List .Item {
   padding: 10px 20px;
   width: auto;
   display: flex;
@@ -19,21 +19,21 @@
   font-weight: 700;
   color: rgb(48, 85, 58);
 }
-#seafoodList .seafoodItem * {
+#List .Item * {
   margin: 0;
 }
-#seafoodList .seafoodItem div {
+#List .Item div {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
   text-align: left;
 }
-#seafoodList .seafoodItem div:last-child {
+#List .Item div:last-child {
   align-items: flex-end;
   text-align: right;
 }
-#seafoodList .seafoodItem p {
+#List .Item p {
   font-size: 18px;
   font-weight: light;
 }/*# sourceMappingURL=CigarCard.css.map */

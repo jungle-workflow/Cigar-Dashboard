@@ -9,7 +9,7 @@ interface cardProps {
 
 export function CigarCard({ item, /* selectedStores, IP */ }: cardProps) {
     return <>
-        <div className="seafoodItem">
+        <div className="Item">
             <div>
                 <h2 style={{ fontSize: '28px', margin: '0px', lineHeight: 1, textTransform: 'capitalize' }}>
                     {item.description.toLowerCase()}

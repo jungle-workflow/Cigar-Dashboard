@@ -1,11 +1,11 @@
-#seafoodList {
+#List {
     display: flex;
     flex-direction: column;
     gap: 10px;
     width: 100%;
     //flex-grow: 1;
 
-    .seafoodItem {
+    .Item {
         // layout
         padding: 10px 20px;
         width: auto;

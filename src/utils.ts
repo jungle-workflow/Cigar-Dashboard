@@ -32,7 +32,7 @@ export const getPrice = (item: CigarItem, /* userIP: string, */ /* selectedStore
 
 const endpoints = {
     proxy: 'api/cigar-deals.json',
-    online: 'https://mobile-api-dev.junglejims.com/cigar-deals.json',
+    online: 'https://mobile-api.junglejims.com/cigar-deals.json',
 }
 
 export const fetchCigarData = async (): Promise<CigarItem[]> => {

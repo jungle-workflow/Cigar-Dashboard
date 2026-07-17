@@ -1,0 +1,80 @@
+.Banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    .BannerInner {
+        width: 100%;
+        max-width: 680px;
+        border-radius: 15px;
+        background: #225e2f;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 20px;
+        justify-content: space-between;
+
+        .text {
+            padding: 22px 20px;
+            /* padding-right: 100px; */
+            //width: 680px;
+            z-index: 2;
+            text-align: left;
+
+            h1 {
+                margin: 0 0 16px;
+                color: #eccd46;
+                //color: #205c2c;
+                font-family: 'Gelica';
+                text-wrap: pretty;
+                line-height: 1;
+                font-weight: 900;
+                font-style: italic;
+            }
+
+            p {
+                margin: 0 !important;
+                color: beige;
+                font-weight: 900;
+            }
+        }
+    }
+
+    .kraft {
+        z-index: 3;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        height: 120%;
+        width: 120%;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        background-repeat: repeat;
+        background-image: url(https://junglejims.com/wp-content/uploads/KRAFT_seamless_optimized.webp);
+    }
+
+    .gradient {
+        z-index: 1;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        height: 120%;
+        width: 120%;
+        pointer-events: none;
+        background-repeat: repeat;
+        background-image: linear-gradient(to right, #225e2f, #225e2fa8, #225e2f00, #225e2f00);
+    }
+
+    img {
+        aspect-ratio: 1.35;
+        object-fit: cover;
+        width: 75%;
+        height: 100%;
+        z-index: 0;
+        position: absolute;
+        right: 0;
+    }
+}
