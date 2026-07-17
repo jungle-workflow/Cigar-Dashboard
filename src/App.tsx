@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { fetchCigarData, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys } from './utils'
+import { fetchCigarData, searchItems, sortItems, CigarItem, setDevelopmentStyles, setWPStyles, filterStore, itemPropKeys, FilterType, debug } from './utils'
 import { CigarCard } from './components/CigarCard/CigarCard'
-import { FilterPanel, PopupPanel, WithPopUp, WithSidePanel } from './components/FilterPanel/FilterPanel'
+import { FilterPanel, PopupPanel, FilterButton, WithSidePanel } from './components/FilterPanel/FilterPanel'
 import { LoadingWidget } from './components/LoadingWidget'
 import { STORES } from './utils'
 import { ScrollPopup } from './components/ScrollPopup/ScrollPopup'
@@ -25,9 +25,6 @@ function App() {
   const [sortQuery, setSortQuery] = useState<string>('')
   const [selectedStore, setSelectedStores] = useState<string[]>([])
   // const [userIP, setUserIP] = useState<string>('')
-  const [selectedFiltersBrand, setSelectedFiltersBrand] = useState<string[]>([])
-  const [selectedFiltersSize, setSelectedFiltersSize] = useState<string[]>([])
-  const [selectedFiltersStrength, setSelectedFiltersStrength] = useState<string[]>([])
   const [viewportRes, setViewportRes] = useState({ x: window.innerWidth, y: window.innerHeight })
   const [isMobile, setIsMobile] = useState(viewportRes.x < 650)
   const [jcfDestroyed, setJcfDestroyed] = useState<boolean>(false)
@@ -35,9 +32,17 @@ function App() {
   const sortRef = useRef<HTMLSelectElement>(null);
   const appContainerRef = useRef<HTMLDivElement>(null);
 
-  
+
+  const [selectedFilters, setSelectedFilters] = useState<Record<FilterType, string[]>>({
+    brand: [],
+    size: [],
+    strength: [],
+  })
+
+  const [activeModal, setActiveModal] = useState<FilterType | undefined>()
+
   useEffect(() => {  //execute the initial fetches
-    console.log("v .5");
+    console.log("v .6");
 
 
     import.meta.env.PROD ? undefined : setDevelopmentStyles()
@@ -135,9 +140,19 @@ function App() {
     //setTypes(assembleSeafoodTypes(seafoodItems, seafoodTypes))
   }, [items])
 
+  useEffect(() => {
+    if (activeModal) {
+      document.body.style.setProperty('height', '0', 'important')
+      document.body.style.setProperty('overflow-y', 'hidden', 'important')
+    } else {
+      document.body.style.setProperty('height', 'auto')
+      document.body.style.setProperty('overflow-y', 'scroll')
+    }
+  }, [activeModal])
+
   useEffect(() => {  // when the user searches for a keyword, filter it here
     setFilteredItems([...orderedItems()])
-  }, [searchQuery, selectedStore, selectedFiltersBrand, selectedFiltersSize, selectedFiltersStrength, sortQuery])
+  }, [searchQuery, selectedStore, sortQuery, selectedFilters])
 
   useEffect(() => { // window size listener
     const handleResize = () => {
@@ -162,9 +177,9 @@ function App() {
             searchItems(
               filterStore(items, selectedStore),
               [searchQuery], [itemPropKeys.brand, itemPropKeys.description, itemPropKeys.size, itemPropKeys.strength]
-            ), selectedFiltersBrand, [itemPropKeys.brand]
-          ), selectedFiltersSize, [itemPropKeys.size]
-        ), selectedFiltersStrength, [itemPropKeys.strength]
+            ), selectedFilters.brand, [itemPropKeys.brand]
+          ), selectedFilters.size, [itemPropKeys.size]
+        ), selectedFilters.strength, [itemPropKeys.strength]
       ),
       sortQuery, /* selectedStore, userIP */
     )
@@ -175,21 +190,20 @@ function App() {
     setSortQuery(currentVal)
   }
 
-  const handleFilterBrand = (query: string) => { // handle toggle list of filters from the filter panel
-    setSelectedFiltersBrand([...toggle(selectedFiltersBrand, query)])
-  }
-  const handleToggleViewBrand = () => {
-
-  }
-  const handleFilterSize = (query: string) => { // handle toggle list of filters from the filter panel
-    setSelectedFiltersSize([...toggle(selectedFiltersSize, query)])
-  }
-  const handleFilterStrength = (query: string) => { // handle toggle list of filters from the filter panel
-    setSelectedFiltersStrength([...toggle(selectedFiltersStrength, query)])
-  }
-
   const handleFilterStore = (query: string) => { // handle store preference
     setSelectedStores([...toggle(selectedStore, query)])
+  }
+
+  const handleFilter = (type: FilterType, query: string) => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [type]: toggle(prev[type], query),
+    }));
+  };
+
+  const handleChangeActiveModal = (query: FilterType) => {
+    debug(["modal", activeModal])
+    setActiveModal(activeModal == query ? undefined : query)
   }
 
   const toggle = (array: any[], query: any) =>
@@ -246,15 +260,15 @@ function App() {
           </div>
         </div>
 
-        {/* <PopupPanel visible={viewBrands} title={"Brands"}>
-          <FilterPanel filters={brands} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
+        <PopupPanel visible={activeModal == "brand"} title={"Brand"} type="brand" toggleVisible={handleChangeActiveModal}>
+          <FilterPanel filters={brands} activeFilters={selectedFilters.brand} type={"brand"} handleFilter={handleFilter} />
         </PopupPanel>
-        <PopupPanel visible={viewSizes} title={"Brands"}>
-          <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />
+        <PopupPanel visible={activeModal == "size"} title={"Size"} type="size" toggleVisible={handleChangeActiveModal}>
+          <FilterPanel filters={sizes} activeFilters={selectedFilters.size} type={"size"} handleFilter={handleFilter} />
         </PopupPanel>
-        <PopupPanel visible={viewStrengths} title={"Brands"}>
-          <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
-        </PopupPanel> */}
+        <PopupPanel visible={activeModal == "strength"} title={"Strength"} type="strength" toggleVisible={handleChangeActiveModal}>
+          <FilterPanel filters={strengths} activeFilters={selectedFilters.strength} type={"strength"} handleFilter={handleFilter} />
+        </PopupPanel>
 
         <div id='toolbarWrapper' style={{ top: `${navHeight + 10}px` }}>
           <div className='filterToolbar'>
@@ -304,15 +318,9 @@ function App() {
           {
             isMobile ?
               <div className='filterToolbar'> {/* buttons only */}
-                <WithPopUp viewportRes={viewportRes} title='Brand' scrollable={true}>
-                  <></>
-                </WithPopUp>
-                <WithPopUp viewportRes={viewportRes} title='Size' scrollable={true}>
-                  <></>
-                </WithPopUp>
-                <WithPopUp viewportRes={viewportRes} title='Strength' scrollable={true}>
-                  <></>
-                </WithPopUp>
+                <FilterButton title='Brand' type={"brand"} toggleVisible={handleChangeActiveModal} />
+                <FilterButton title='Size' type={"size"} toggleVisible={handleChangeActiveModal} />
+                <FilterButton title='Strength' type={"strength"} toggleVisible={handleChangeActiveModal} />
               </div> : undefined
           }
         </div>
@@ -322,17 +330,17 @@ function App() {
           marginBottom: `${!isMobile ? "30px" : 0}`
         }}>
           {filteredItems.length} Results
-          {selectedFiltersBrand.length > 0 && ` >`}
-          {selectedFiltersBrand.map((filter, index) => {
-            return <span key={index}>{` ${filter}${index == selectedFiltersBrand.length - 1 ? `` : `,`}`}</span>
+          {selectedFilters.brand.length > 0 && ` >`}
+          {selectedFilters.brand.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFilters.brand.length - 1 ? `` : `,`}`}</span>
           })}
-          {selectedFiltersSize.length > 0 && ` >`}
-          {selectedFiltersSize.map((filter, index) => {
-            return <span key={index}>{` ${filter}${index == selectedFiltersSize.length - 1 ? `` : `,`}`}</span>
+          {selectedFilters.size.length > 0 && ` >`}
+          {selectedFilters.size.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFilters.size.length - 1 ? `` : `,`}`}</span>
           })}
-          {selectedFiltersStrength.length > 0 && ` >`}
-          {selectedFiltersStrength.map((filter, index) => {
-            return <span key={index}>{` ${filter}${index == selectedFiltersStrength.length - 1 ? `` : `,`}`}</span>
+          {selectedFilters.strength.length > 0 && ` >`}
+          {selectedFilters.strength.map((filter, index) => {
+            return <span key={index}>{` ${filter}${index == selectedFilters.strength.length - 1 ? `` : `,`}`}</span>
           })}
           <br />
           All items are subject to availability.
@@ -372,13 +380,13 @@ function App() {
                 !isMobile ?
                   <div id="filterWrapper" style={{ top: `${navHeight + 10}px` }}>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={brands} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
+                      <FilterPanel filters={brands} activeFilters={selectedFilters.brand} type={"brand"} handleFilter={handleFilter} />
                     </WithSidePanel>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />
+                      <FilterPanel filters={sizes} activeFilters={selectedFilters.size} type={"size"} handleFilter={handleFilter} />
                     </WithSidePanel>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
+                      <FilterPanel filters={strengths} activeFilters={selectedFilters.strength} type={"strength"} handleFilter={handleFilter} />
                     </WithSidePanel>
                   </div> : undefined
               }

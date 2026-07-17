@@ -6,6 +6,9 @@ export type CigarItem = {
     price: number,
     restrictions: string,
 }
+
+export type FilterType = "brand" | "size" | "strength";
+
 export const itemPropKeys: Record<keyof CigarItem, keyof CigarItem> = {
     brand: "brand",
     description: "description",
@@ -24,6 +27,7 @@ export const STORES = {
     FF: "fairfield",
     EG: "eastgate"
 }
+
 
 
 export const getPrice = (item: CigarItem, /* userIP: string, */ /* selectedStores: string[] */): string => { // this method exists to display a different price if they vary between stores
