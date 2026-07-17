@@ -18,7 +18,7 @@ function App() {
   const [appLoading, setAppLoading] = useState<boolean>(true)
   const [items, setItems] = useState<CigarItem[]>([])
   const [filteredItems, setFilteredItems] = useState<CigarItem[]>([])
-  const [categories, setCategories] = useState<string[]>([])
+  const [brands, setBrands] = useState<string[]>([])
   const [sizes, setSizes] = useState<string[]>([])
   const [strengths, setStrengths] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -35,7 +35,7 @@ function App() {
   const sortRef = useRef<HTMLSelectElement>(null);
   const appContainerRef = useRef<HTMLDivElement>(null);
 
-
+  
   useEffect(() => {  //execute the initial fetches
     console.log("v .5");
 
@@ -113,7 +113,7 @@ function App() {
       .map(item => item.brand.trim())
       .filter(category => category); // Filter out empty or whitespace-only item
     const uniqueCategories = Array.from(new Set(categories));
-    setCategories(uniqueCategories)
+    setBrands(uniqueCategories)
 
     const sizes = items
       .map(item => item.size.trim())
@@ -178,6 +178,9 @@ function App() {
   const handleFilterBrand = (query: string) => { // handle toggle list of filters from the filter panel
     setSelectedFiltersBrand([...toggle(selectedFiltersBrand, query)])
   }
+  const handleToggleViewBrand = () => {
+
+  }
   const handleFilterSize = (query: string) => { // handle toggle list of filters from the filter panel
     setSelectedFiltersSize([...toggle(selectedFiltersSize, query)])
   }
@@ -189,16 +192,12 @@ function App() {
     setSelectedStores([...toggle(selectedStore, query)])
   }
 
-  const toggle = (array: any[], query: any) => {
+  const toggle = (array: any[], query: any) =>
     // toggle item from array
-    let newArray = array;
-    if (newArray.includes(query)) {
-      newArray = newArray.filter((item) => item != query)
-    } else {
-      newArray.push(query)
-    }
-    return newArray
-  }
+    array.includes(query)
+      ? array.filter((item) => item !== query)
+      : [...array, query];
+
 
   return (
     <>
@@ -247,6 +246,16 @@ function App() {
           </div>
         </div>
 
+        {/* <PopupPanel visible={viewBrands} title={"Brands"}>
+          <FilterPanel filters={brands} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
+        </PopupPanel>
+        <PopupPanel visible={viewSizes} title={"Brands"}>
+          <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />
+        </PopupPanel>
+        <PopupPanel visible={viewStrengths} title={"Brands"}>
+          <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
+        </PopupPanel> */}
+
         <div id='toolbarWrapper' style={{ top: `${navHeight + 10}px` }}>
           <div className='filterToolbar'>
 
@@ -277,7 +286,7 @@ function App() {
             </div>
           </div>
 
-          {
+          {/* {
             isMobile ?
               <div className='filterToolbar'>
                 <WithPopUp viewportRes={viewportRes} title='Brand' scrollable={true}>
@@ -289,7 +298,21 @@ function App() {
                 <WithPopUp viewportRes={viewportRes} title='Strength' scrollable={true}>
                   <FilterPanel filters={strengths} activeFilters={selectedFiltersStrength} handleFilter={handleFilterStrength} />
                 </WithPopUp>
-              <PopupPanel visible={true} title={"Test"} children={<></>} />
+              <PopupPanel visible={false} title={"Test"} children={<></>} />
+              </div> : undefined
+          } */}
+          {
+            isMobile ?
+              <div className='filterToolbar'> {/* buttons only */}
+                <WithPopUp viewportRes={viewportRes} title='Brand' scrollable={true}>
+                  <></>
+                </WithPopUp>
+                <WithPopUp viewportRes={viewportRes} title='Size' scrollable={true}>
+                  <></>
+                </WithPopUp>
+                <WithPopUp viewportRes={viewportRes} title='Strength' scrollable={true}>
+                  <></>
+                </WithPopUp>
               </div> : undefined
           }
         </div>
@@ -349,7 +372,7 @@ function App() {
                 !isMobile ?
                   <div id="filterWrapper" style={{ top: `${navHeight + 10}px` }}>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
-                      <FilterPanel filters={categories} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
+                      <FilterPanel filters={brands} activeFilters={selectedFiltersBrand} handleFilter={handleFilterBrand} />
                     </WithSidePanel>
                     <WithSidePanel viewportRes={viewportRes} scrollable={true}>
                       <FilterPanel filters={sizes} activeFilters={selectedFiltersSize} handleFilter={handleFilterSize} />

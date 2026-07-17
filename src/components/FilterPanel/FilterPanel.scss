@@ -70,7 +70,47 @@
     }
 }
 
+  .filterModal {
+        position: fixed;
 
+        height: auto;
+        min-height: 100px;
+        inset: 200px 0 0;
+        padding: 0;
+
+        box-sizing: border-box;
+        border-radius: 0;
+        background: #e9e5d4;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        //filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+
+        .children {
+            position: relative;
+            overflow-y: scroll;
+
+            height: calc(-258px + 100vh);
+            width: 100vw;
+            max-height: min-content;
+            
+            box-sizing: border-box;
+            border-radius: 0;
+
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+
+            text-align: left;
+            text-wrap: nowrap;
+            font-weight: 600;
+
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+    }
 .filterWrapper,
 #filterWrapper {
     // Desktop

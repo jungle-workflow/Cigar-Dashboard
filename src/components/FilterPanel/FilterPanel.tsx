@@ -15,6 +15,7 @@ export function FilterPanel({ filters, activeFilters, handleFilter }: FilterProp
     })}</>
 }
 
+
 interface InputProps {
     filter: string
     activeFilters: string[]
@@ -99,15 +100,17 @@ export const WithPopUp = ({ children, title, viewportRes, scrollable, handlePopU
         };
     }, []);
 
-    return (
-        <div className="filterPanel" key={nanoid()} style={{ position: 'relative' }} onClick={toggleVisible}>
+    return <>
+
+        <div className="filterPanel" key={`${title}-panel`} style={{ position: 'relative' }} onClick={toggleVisible}>
             <span style={{ fontSize: '20px', fontVariationSettings: `'FILL' 1` }} className="material-symbols-outlined">bolt</span>
             <p style={{ fontWeight: 600, textWrap: "nowrap", padding: '5px', margin: 0 }}>{title}</p>
             {/* moved this out into the main app breakout */}
-            <PopupPanel visible={visible} title={title} filterRef={filterRef} children={children} />
+            {/* <PopupPanel visible={visible} title={title} filterRef={filterRef} children={children} /> */}
         </div>
-    )
+    </>
 }
+
 
 interface PopupProps {
     visible: boolean
@@ -119,7 +122,7 @@ interface PopupProps {
 export const PopupPanel = ({ visible, title, filterRef, children }: PopupProps) => {
     return <>
         {visible
-            ? <div /* ref={filterRef} */ className="expandedMobileCategories" style={{
+            ? <div /* ref={filterRef} */ className="filterModal" style={{
                 opacity: `${visible ? 1 : 0}`,
                 pointerEvents: `${visible ? 'all' : 'none'}`,
             }}
