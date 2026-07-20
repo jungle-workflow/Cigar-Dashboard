@@ -42,7 +42,7 @@ function App() {
   const [activeModal, setActiveModal] = useState<FilterType | undefined>()
 
   useEffect(() => {  //execute the initial fetches
-    console.log("v .6");
+    console.log("v 1.0");
 
 
     import.meta.env.PROD ? undefined : setDevelopmentStyles()
