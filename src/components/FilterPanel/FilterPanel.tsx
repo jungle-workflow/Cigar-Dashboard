@@ -34,7 +34,7 @@ export function FilterInput({ filter, activeFilters, type, handleFilter }: Input
     return <>
         <div className="filterInput" style={{ gap: '4px', padding: 0, height: 'min-content' }} key={`${filter}-${id}`}>
             <input type='checkbox' checked={checked} value={filter} onChange={() => { handleFilter(type, filter); setChecked(!checked) }} />
-            <p style={{ margin: 0 }}>{filter}</p>
+            <p onClick={() => { handleFilter(type, filter); setChecked(!checked) }} style={{ margin: 0 }}>{filter}</p>
         </div>
     </>
 }

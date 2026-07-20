@@ -88,7 +88,9 @@
         height: auto;
         min-height: 100px;
         inset: 200px 0 0;
-        padding: 0;
+        padding: 0 18px;
+
+        border-radius: 20px !important;
 
         background: #e9e5d4;
 
@@ -99,6 +101,7 @@
             height: calc(-258px + 100vh);
             width: 100vw;
             max-height: min-content;
+            padding-bottom: 18vh;
 
             box-sizing: border-box;
             border-radius: 0;
